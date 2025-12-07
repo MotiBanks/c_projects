@@ -8,7 +8,7 @@ int bitAnd(int x, int y) {
 
 
 int getByte(int x, int n) {
-    return 0;
+    return (x >> (n << 3))&0xFF;
 }
 
 
