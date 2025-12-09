@@ -8,13 +8,13 @@ int bitAnd(int x, int y) {
 
 
 int getByte(int x, int n) {
-    return (x >> (n << 3))&0xFF;
+    return (x >> (n << 3)) &0xFF;
 }
 
 
 int logicalShift(int x, int n) {
     
-    return 0;
+    return  (1 << (32 - n)) - 1;
 }
 
 
@@ -62,7 +62,7 @@ int isPositive(int x) {
 
 int isLessOrEqual(int x, int y) {
     
-    return 0;
+    return x <= y ;
 }
 
 
