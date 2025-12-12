@@ -1,4 +1,4 @@
-# Bit Manipulation Notes
+# **Bit Manipulation Notes**
 
 **Author:** Moti  
 
@@ -9,12 +9,12 @@ I’m keeping it simple, honest, and in my tone… just organized so my future s
 
 ---
 
-## 🧩 Puzzle 1 — `bitAnd`
+# **Puzzle 1 — `bitAnd`**
 
 **Goal:** compute `x & y` using only `~` (NOT) and `|` (OR).  
 **Allowed ops:** `~` `|`
 
-### 🔍 Explanation
+## **🔍 Explanation**
 
 The puzzle says: implement bitAND `(x & y)` without actually using `&`.  
 
@@ -45,7 +45,7 @@ Using the same law:
 
 
 
-### ✅ Final solution
+## **✅ Final solution**
 ```c
 return ~(~x | ~y);
 ```
@@ -54,12 +54,12 @@ return ~(~x | ~y);
 ---
 
 
-## Puzzle 2 — `getByte`
+# **Puzzle 2 — `getByte`**
 
 **Goal:** extract the n-th byte from `x`.  
 **Allowed ops:** shifts + mask.
 
-### 🔍 Step-by-step logic
+## **🔍 Step-by-step logic**
 
 1 byte = 8 bits
 nth byte → `n * 8`
@@ -97,7 +97,7 @@ So:
 
 
 
-### ✅ Final solution
+## **✅ Final solution**
 ```c
 return (x >> (n << 3)) & 0xFF;
 ```
@@ -106,18 +106,18 @@ return (x >> (n << 3)) & 0xFF;
 ---
 
 
-## Puzzle 3 - `logicalShift`
+# **Puzzle 3 - `logicalShift`**
 
 **Goal:** Perform a logical right shift (fill with zeros), even if machine uses arithmetic shift.  
 **Allowed ops:** shifts + mask.
 
 
-### Reasoning
-**Perform a Logical Right Shift on a Signed Integer??**
+## **Reasoning**
+Perform a Logical Right Shift on a Signed Integer??
 
 It's impossible just reading it.
 
-In C, the rule for shifting is:
+In C, the **rule for shifting is:**
 
 `Unsigned integers → logical right shift (fills with zeros)`
 
@@ -126,19 +126,19 @@ In C, the rule for shifting is:
 But here, the puzzle asks us to do a logical right shift on a signed integer.
 
 
-### 🔍 Step-by-step logic
+## **🔍 Step-by-step logic**
 
-> ### **Step 1:** Start with an arithmetic right shift
+## **Step 1:** Start with an arithmetic right shift
 
 We could just do:
 
 `x >> n`
 
 
-…but this is not what the puzzle wants.
+But this is not what the puzzle wants....
 
 
-Arithmetic right shift will always preserves the sign bit, which for negative numbers is 1. 
+Arithmetic right shift will always preserves the sign bit, which for negative numbers is 1.
 
 Logical right shift fills with zeros.   
 
@@ -146,32 +146,33 @@ We don’t want the extra sign bits.
 
 
 
->### **Step 2:** Introduce masking
+## **Step 2:** Introduce masking
 
 We need masking to remove the extra 1’s that the arithmetic right shift produces.
 
-`Quick note: we’re assuming a 32-bit system here, so the total number of bits is 32. That’s why later you’ll see 32 - n.`
+**Quick note: we’re assuming a 32-bit system here, so the total number of bits is 32.**
+**That’s why later you’ll see 32 - n.**
 
 Now the question is what part of this bits do we want to keep??
 
-After shifting right by n, we want to keep the `lower 32 - n bits`.
+- After shifting right by n, we want to keep the **lower 32 - n bits** .
 
-`The top n bits are garbage; the lower bits are our real data.`
+- The top n bits are garbage; the lower bits are our real data.
 
 So the first idea is to create an indicator for where the lower bits start:
 
 `1 << (32 - n)`
 
 
-Why 1??
+Why 1 ?
 
-`Because you cannot create new 1s from 0 while using a shift — shifts only moves existing bits.`
+**Because you cannot create new 1s from 0 while using a shift — shifts only moves existing bits.**
 
 So using 1, will give us a number with one 1 and a bunch of zeros , marking the start of the bits we want.
 
 
 
-> ### **Step 3:** Expand the mask
+ ## **Step 3:** Expand the mask
 
 If we stopped here, `1 << (32 - n)` would keep only one bit and erase all our data.
 We subtract 1:
@@ -181,14 +182,312 @@ We subtract 1:
 
 Why?
 
-`Subtracting 1 in binary turns the lone 1 into 0 and all zeros to its right into 1s.`
+**Subtracting 1 in binary turns the lone 1 into 0 and all zeros to its right into 1s.`**
 
-This gives us `n zeros` on the left and `32 - n` ones on the right, exactly the mask we need.
+This gives us:
+- *n zeros* on the left 
+-  `32 - n` ones on the right, exactly the mask we need.
 
 
-### ✅ Final result:
+## **✅ Final result:**
 ```c
 return (1 << (32 - n)) - 1;
 ```
 
-we apply this mask after the arithmetic shift to simulate a logical right shift on a signed integer
+we apply this mask after the arithmetic shift to simulate a logical right shift on a signed integer.
+
+
+---
+
+
+
+# **Puzzle 4 - `bitCount`**
+
+**Goal:** Count how many 1 bits are inside x.  
+**Allowed ops:** Only bit stuff. No loops.
+
+
+## **How I should think about it**
+
+I pretend the 32 bits in x are **32 little boxes**.  
+Each box is either:
+
+- 1 → has a stone
+    
+- 0 → empty
+    
+
+I’m not allowed to count them one by one.  
+So I do a trick:
+
+**I combine boxes into bigger boxes and add their stone counts.**
+
+Each round doubles the size of the box groups.
+
+
+
+
+## **Step 0: Make masks**
+
+Masks are just **stencils** that let some boxes through and block the others.
+
+- `0x55555555` → 010101010101…0101
+    
+    - Lets **every even bit** pass
+        
+    - Blocks **odd bits**
+        
+- `0x33333333` → 001100110011…0011
+    
+    - Lets every **2-bit group** pass
+        
+- `0x0f0f0f0f` → 0000111100001111…00001111
+    
+    - Lets every **4-bit group** pass
+        
+
+Think of masks as **cookie cutters**. They let you separate pieces to add properly.
+
+
+
+## **Step 1: Count every 2 bits (pair of boxes)**
+
+`x = (x & 0x55555555) + ((x >> 1) & 0x55555555);`
+
+**Break it down:**
+
+1. `(x & 0x55555555)` → keeps **even-numbered bits**
+    
+    - Bit 0, 2, 4, 6…
+        
+    - All other bits become 0
+        
+2. `(x >> 1)` → shifts all bits **1 to the right**
+    
+    - Now **odd-numbered bits** move into even spots
+        
+    - Then `& 0x55555555` → keeps them, blocks the rest
+        
+3. `+` → add the even bits and the odd bits **pair by pair**
+    
+
+**Result:**  
+Each **2-bit pair** now contains the **count of 1s in those 2 bits** (0,1,2).
+
+
+
+## **Step 2: Count every 4 bits (group of 2 pairs)**
+
+`x = (x & 0x33333333) + ((x >> 2) & 0x33333333);`
+
+**Break it down:**
+
+1. `(x & 0x33333333)` → keeps the first **2-bit count** of each 4-bit group
+    
+2. `(x >> 2)` → shifts the **second 2-bit count** into the first spot
+    
+3. `& 0x33333333` → clears extra bits
+    
+4. `+` → adds the two 2-bit counts together
+    
+
+**Result:**  
+Now each **4-bit group** has a number = count of 1s in those 4 bits (0–4).
+
+
+
+## **Step 3: Count every 8 bits (group of 4-bit counts)**
+
+`x = (x + (x >> 4)) & 0x0f0f0f0f;`
+
+**Break it down:**
+
+- `(x + (x >> 4))` → adds **two 4-bit counts**
+    
+- `& 0x0f0f0f0f` → clears overflow to keep each byte correct
+    
+
+**Result:**  
+Each **8-bit chunk** = count of 1s in those 8 original bits (0–8).
+
+
+
+## **Step 4: Combine 8-bit chunks into 16-bit**
+
+`x = x + (x >> 8);`
+
+- Adds first 8 bits + second 8 bits → 16-bit count
+    
+- Repeat for the next 16 bits
+    
+
+
+
+## **Step 5: Combine 16-bit chunks into 32-bit total**
+
+`x = x + (x >> 16);`
+
+- Adds first 16 bits + last 16 bits → total count in bottom 32 bits
+    
+
+
+
+## **Step 6: Keep only needed bits**
+
+`return x & 0x3f;`
+
+- Max number of 1s in 32-bit number = 32
+    
+- 32 in binary = 100000 → fits in **6 bits**
+    
+- `& 0x3f` keeps only these 6 bits, ignores junk
+    
+
+
+
+## ✅ **Final result**
+```c
+return x & 0x3f; 
+```
+
+
+
+## **How to remember it**
+
+1. Think of **32 boxes**, each 0 or 1
+    
+2. Group them **2 → 4 → 8 → 16 → 32**
+    
+3. Add counts inside each group
+    
+4. Keep only enough bits for the max total
+    
+
+
+---
+
+
+
+
+# **Puzzle 5 - `bang`**
+
+
+**Goal:** Compute !x without using !   
+**Allowed ops:** Use properties of two's complement: x | -x
+
+
+## **What the puzzle wants**  
+Build a function `bang(x)` that returns:
+
+- **1 when x = 0**
+    
+- **0 when x ≠ 0**
+    
+
+And you’re **not allowed to use `!`**.
+
+
+
+## **🔍 Step-by-step logic**
+
+In two’s-complement:
+
+- For **any nonzero x**, either **x** or **−x** must have its **sign bit = 1**.
+    
+- For **x = 0**, both x and −x are just **0**, so the sign bit is **0**.
+    
+
+This gives a simple detector:
+
+### **If x ≠ 0 → (x | -x) has sign bit = 1**
+
+### **If x = 0 → (x | -x) = 0**
+
+So `(x | -x)` is the **“is-nonzero” signal**.
+
+
+
+## **What OR ( | ) does**
+
+Bitwise OR sets each bit to:
+
+- **1** if either input bit is 1
+    
+- **0** only if _both_ bits are 0
+    
+
+So OR’ing x with −x forces the sign bit on for any nonzero x.
+
+
+
+## **Walkthrough Example (x = 5 in 8-bit just for clarity)**
+
+x = 5 → `0000 0101`
+
+Compute −x:
+
+- Flip bits: `1111 1010`
+    
+- Add 1:  `1111 1011`
+    
+
+Now OR them:
+
+`0000 0101  |  1111 1011 ----------- 1111 1111`
+
+That’s all 1s → sign bit = 1.
+
+
+
+## **Right Shift Step**
+
+Right-shifting by 7 in 8-bit (or 31 in 32-bit) does sign extension:
+
+- If sign bit = 1 → shift fills with 1s → result = −1
+    
+- If sign bit = 0 → shift fills with 0s → result = 0
+    
+
+In this case:
+
+`1111 1111 >> 7 = 1111 1111` → still `-1`
+
+So after shifting:
+
+- **x ≠ 0 → result = −1**
+    
+- **x = 0 → result = 0**
+    
+
+But the puzzle wants:
+
+- **x ≠ 0 → 0**
+    
+- **x = 0 → 1**
+    
+
+Simple fix: **add 1**.
+
+- If result = −1 → −1 + 1 = 0
+    
+- If result = 0 → 0 + 1 = 1
+    
+
+
+
+
+## **✅ Final result**
+```c
+return `((x | -x) >> 31) + 1`;
+```
+
+- If x = 0 → gives **1**
+    
+- If x ≠ 0 → gives **0**
+    
+
+
+---
+
+
+
