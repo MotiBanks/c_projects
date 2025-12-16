@@ -50,7 +50,7 @@ int divpwr2(int x, int n) {
 
 int negate(int x) {
     
-    return 0;
+    return ~x + 1;
 }
 
 

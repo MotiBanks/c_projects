@@ -721,7 +721,7 @@ return (x << (32 - n)) >> (32 - n) == x;
 
 # **Puzzle 8 - `divpwr2`**
 **Goal:** Compute x / (2^n), rounding toward zero, handle negatives correctly.  
-**Allowed ops:** 
+**Allowed ops:** >> , <<, +
 
 
 ## **What the question is actually asking?**
@@ -801,4 +801,85 @@ Mechanically:
 ```c
 int bias = (x >> 31) & ((1 << n) - 1);
     return (x + bias) >> n;
+```
+
+
+---
+
+
+# **Puzzle 9 - `negate`**
+
+**Goal:** Return -x using only allowed operators  
+**Allowed ops:** ~ , +
+
+
+
+## **What the question is _actually asking_?**
+
+> Return `-x` using only allowed operators.
+
+Ignoring C syntax for a second. What does negation mean at the **bit level**?
+
+
+Mechanically in two’s complement:
+
+`-x  ===  ~x + 1`
+
+
+
+
+## **Mechanics of two’s complement negation**
+
+1. **Complement all bits** → `~x`
+    
+    - Flips 0 → 1 and 1 → 0
+        
+        
+2. **Add 1** → `~x + 1`
+    
+    - Turns the flipped number into the exact negative of `x`
+        
+    - Works for positive and negative numbers
+        
+    - Handles zero correctly (`~0 + 1 = 0`
+                              `- 1 + 1 = 0`)
+        
+
+This is **literally how negation is defined in two’s complement hardware**.
+
+
+## **Examples**
+```c
+- x = 5:
+
+x      = 0000...0101 
+~x     = 1111...1010 
+~x + 1 = 1111...1011  // -5
+```
+
+```c
+- x = -3:
+    
+x      = 1111...1101 
+~x     = 0000...0010 
+~x + 1 = 0000...0011  // 3
+```
+
+```c
+- x = 0:
+    
+x      = 0000...0000 
+~x     = 1111...1111 
+~x + 1 = 0000...0000  // 0
+```
+
+**Rule of Thumb:**
+
+> “Negation in two’s complement = bitwise NOT + 1”
+
+
+## **✅Final result**
+
+```c
+    return ~x + 1;
 ```
