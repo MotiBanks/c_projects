@@ -38,7 +38,7 @@ int tmin(void) {
 
 int fitsBits(int x, int n) {
     
-    return 0;
+    return (x << (32 - n)) >> (32 - n) == x;
 }
 
 

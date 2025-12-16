@@ -563,7 +563,7 @@ It lands here:
 Which is **exactly** what the puzzle asked for.
 
 
-## **Why this equals “minimum integer” **
+## **Why this equals “minimum integer”**
 
 In Two's complement , the most important rule is:
 
@@ -590,4 +590,126 @@ We literally have:
 ## **✅Final result**
 ```c
 return  1 << 31;
+```
+
+
+---
+
+
+# **Puzzle 7 - `fitsBits`**
+**Goal:** Return 1 if x fits in n-bit signed integer, else 0   
+**Allowed ops:** << , >>
+
+
+
+## **What the function is _really_ asking?**
+
+“If I were forced to store `x` in only `n` bits, would its meaning survive?”
+
+
+## **What does “fits in n bits” mean mechanically?**
+
+In two’s complement, an `n`-bit signed number has:
+
+- 1 sign bit
+    
+- n−1 value bits
+
+
+## **The key physical idea (this is the whole trick)**
+
+The mechanical fact I must internalize:
+
+> If a number fits in `n` bits, then **throwing away all higher bits and then sign-extending back** gives you the _same number_.
+
+That’s the definition of “fits”.
+
+So the real test becomes:
+
+> “If I shrink `x` to `n` bits and then grow it back to 32 bits, do I get the same `x`?”
+
+If yes → it fits  
+If no → information was lost → it doesn’t fit
+
+
+## **How then do I “shrink” bits?**
+
+We use **right shifts**.
+
+Arithmetic right shift (`>>`) does this:
+
+- Shifts bits right
+    
+- Copies the sign bit on the left
+    
+
+If we want to keep only the lowest `n` bits, we can:
+
+1. Shift left to **throw away** high bits
+    
+2. Shift right to **restore** size with sign extension
+
+
+
+Mechanically:
+
+`shift = 32 - n `
+
+`(x << shift) >> shift`
+
+What this does:
+
+- `x << shift` pushes important bits to the top, discarding excess
+    
+- `>> shift` brings it back down, filling with sign bits
+    
+
+If `x` truly fits in `n` bits, this round trip changes nothing.
+
+
+And In bitwise terms:
+
+- Equality → result 1
+    
+- Inequality → result 0
+
+
+#### Case 1: Does **not** fit
+
+```c
+x = 4, n = 3 
+
+shift = 32 - 3 = 29
+
+(4 << 29) >> 29 = -4  // ≠ 4, so does NOT fit 
+
+fitsBits(4, 3) = 0
+
+```
+
+#### Case 2: Fits
+```c
+x = -4, n = 3 
+
+shift = 32 - 3 = 29  
+
+(-4 << 29) >> 29 = -4  // same as original, so fits 
+
+fitsBits(-4, 3) = 1
+```
+
+
+## **What to train my brain to ask next time?**
+
+When you see:
+
+> “fits in N bits”
+
+Your first thought should be:
+
+> “What happens if I compress it and expand it again?”
+
+## **✅Final result**
+```c
+return (x << (32 - n)) >> (32 - n) == x;
 ```
