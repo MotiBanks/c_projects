@@ -883,3 +883,114 @@ x      = 0000...0000
 ```c
     return ~x + 1;
 ```
+
+
+---
+
+
+
+# **Puzzle 10 - `isPositive`**
+
+
+
+
+## **What the question is asking?**
+
+> Return 1 if `x > 0`, else 0
+
+Mechanically, in two’s complement:
+
+- **Positive numbers:** sign bit = 0, x ≠ 0
+    
+- **Zero:** sign bit = 0, but x = 0 → not positive
+    
+- **Negative numbers:** sign bit = 1
+    
+
+So the two conditions we need:
+
+1. Sign bit = 0
+    
+2. x ≠ 0
+    
+
+
+## **How to extract the sign bit**
+
+In two’s complement, the **most significant bit** determines the sign:
+
+`x >> 31`
+
+- For positive numbers (including zero), this is `0`
+    
+- For negative numbers, this is `-1` (all 1s in two’s complement)
+    
+
+Mechanically, `x >> 31` is like a **flag** for negativity.
+
+
+
+## **How to detect nonzero**
+
+- `!!x` → converts any nonzero number to 1
+    
+- `!!0` → 0
+    
+
+Mechanically, this is “is there at least one bit set?”
+
+
+
+## **Combine the two**
+
+We want:
+
+- Positive → sign bit = 0 **and** x ≠ 0 → return 1
+    
+- Negative → sign bit = 1 → return 0
+    
+- Zero → x = 0 → return 0
+    
+
+Mechanically, one way:
+
+`! (x >> 31) & !!x`
+
+- `!(x >> 31)` → 1 if sign bit = 0 (non-negative)
+    
+- `!!x` → 1 if x ≠ 0
+    
+- AND → 1 only if x > 0
+    
+
+
+
+## **Examples**
+
+- `x = 5` → sign bit = 0, x ≠ 0 → return 1
+    
+- `x = -3` → sign bit = 1 → return 0
+    
+- `x = 0` → sign bit = 0, x = 0 → return 0
+    
+
+
+
+## **Implementation**
+
+`return !(x >> 31) & !!x; `
+
+**Mechanics recap:**
+
+1. `x >> 31` → detect negative numbers
+    
+2. `!!x` → detect nonzero numbers
+    
+3. `&` → combine conditions → only positive numbers pass
+    
+
+
+## **✅Final result**
+```c
+    return !(x << 31) & !!x;
+```

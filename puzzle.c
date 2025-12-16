@@ -56,7 +56,7 @@ int negate(int x) {
 
 int isPositive(int x) {
     
-    return 0;
+    return !(x << 31) & !!x;
 }
 
 
