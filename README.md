@@ -891,6 +891,8 @@ x      = 0000...0000
 
 # **Puzzle 10 - `isPositive`**
 
+**Goal:** Return 1 if x > 0, else 0  
+**Allowed ops:** ! , & , !! , >>
 
 
 
@@ -992,5 +994,83 @@ Mechanically, one way:
 
 ## **✅Final result**
 ```c
-    return !(x << 31) & !!x;
+    return !(x >> 31) & !!x;
+```
+
+
+---
+
+
+# **Puzzle 11 - `isLessOrEqual`**
+
+**Goal:** Return 1 if x <= y, else 0  
+**Allowed ops:** ! , ~ , + , >>
+
+
+## **What the question is actually asking?**
+
+> Return 1 if `x <= y`, else 0
+
+Mechanically, at the bit level, “less than or equal” depends on **two things**:
+
+1. The **sign of x and y**
+    
+2. The **magnitude** if the signs are the same
+    
+
+
+
+
+## **We Consider the signs first**
+
+Two’s complement numbers have a **sign bit** (most significant bit):
+
+- `0` → non-negative
+    
+- `1` → negative
+    
+
+So we can quickly handle **different signs**:
+
+- If `x` is negative (`x >> 31 = 1`) and `y` is positive (`y >> 31 = 0`) → `x < y` → return 1
+    
+- If `x` is positive (`0`) and `y` is negative (`1`) → `x > y` → return 0
+    
+
+Mechanically, the sign bits can short-circuit the comparison.
+
+
+## **If signs are the same, compare magnitudes**
+
+If `x` and `y` have the **same sign**, then:
+
+- For positive numbers: `x <= y` → normal arithmetic
+    
+- For negative numbers: `x <= y` → subtraction still works, but need to consider that subtraction can overflow
+    
+
+Mechanically, the safest is to compute:
+
+`y - x`
+
+- If the result is non-negative → `y >= x` → return 1
+    
+- If negative → `x > y` → return 0
+    
+
+Using only bit operations, “non-negative” can be checked by the **sign bit** of `y - x`:
+
+`!( (y + (~x + 1)) >> 31 )`
+
+
+- `y + (~x + 1)` → same as `y - x`
+    
+- `>> 31` → extract sign
+    
+- `!` → convert to 1 if non-negative
+
+
+## **✅Final result**
+```c
+    return !( (y + (~x + 1)) >> 31 );
 ```

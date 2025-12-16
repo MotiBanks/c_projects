@@ -56,13 +56,13 @@ int negate(int x) {
 
 int isPositive(int x) {
     
-    return !(x << 31) & !!x;
+    return !(x >> 31) & !!x;
 }
 
 
 int isLessOrEqual(int x, int y) {
     
-    return x <= y ;
+    return !( (y + (~x + 1)) >> 31 );
 }
 
 
