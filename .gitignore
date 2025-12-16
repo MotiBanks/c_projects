@@ -1,3 +1,2 @@
-# Ignore common build artifacts
 *.o
-parameter.c
+

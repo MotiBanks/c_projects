@@ -493,3 +493,101 @@ return `((x | -x) >> 31) + 1`;
 
 # **Puzzle 6 - `tmin`**
 
+**Goal:** Return minimum two's complement integer (0x80000000 for 32-bit)   
+**Allowed ops:** <<
+
+
+
+## **What the puzzle is _actually_ asking me to do**
+
+The puzzle says:
+
+> Return minimum two’s complement integer (0x80000000 for 32-bit)
+
+
+## **Where to start reasoning (this is the key)**
+
+I **do not** start with math.  
+I **do not** start with C syntax.
+
+I start by asking one blunt question:
+
+> “What do the bits look like in the answer?”
+
+And the puzzle literally tells me:
+
+`0x80000000`
+
+Since, Hex is just shorthand for bits. That hex number means:
+
+
+`1000 0000 0000 0000 0000 0000 0000 0000`
+
+So my brain should lock onto this:
+
+- Exactly **one** bit is `1`
+    
+- It’s the **leftmost** bit
+    
+- Everything else is `0`
+  
+
+## **How do I physically assemble it?**
+  
+  Next blunt question:
+
+> “What’s the simplest thing I can start from?”
+
+Answer:  
+`1`
+
+Because `1` is literally:
+
+`00000000 00000000 00000000 00000001`
+
+
+
+## **Enter the only operation that moves bits**
+The goal is to move the bits to the leftmost side
+
+We Left shift (`<<`) means:
+
+> Slide bits left. Drop zeros in behind.
+
+After 31 steps, the bit has nowhere else to go.
+
+It lands here:
+
+`10000000 00000000 00000000 00000000`
+
+Which is **exactly** what the puzzle asked for.
+
+
+## **Why this equals “minimum integer” **
+
+In Two's complement , the most important rule is:
+
+> The leftmost bit (b31) is the **sign bit**
+
+- If b31 = 0 → number is **non-negative** (OFF)
+    
+- If b31 = 1 → number is **negative** (ON)
+
+
+So when:
+
+- That bit one is on
+    
+- And all others are off
+    
+
+We literally have:
+
+- The minimum negative value
+    
+- With no positive bits to counter it
+
+## **✅Final result**
+```c
+return  1 << 31;
+```

@@ -32,7 +32,7 @@ int bang(int x) {
 
 int tmin(void) {
     
-    return 0;
+    return 1 << 31;
 }
 
 
